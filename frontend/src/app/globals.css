@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-surface-light text-slate-900 antialiased dark:bg-surface-dark dark:text-slate-100;
+  font-feature-settings: "kern";
+}
+
+::selection {
+  background-color: rgba(184, 115, 51, 0.35);
+}
+
+/* Slim themed scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 150, 0.4);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 115, 51, 0.7);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  @apply relative overflow-hidden rounded-xl bg-slate-200/80 dark:bg-white/[0.06];
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  animation: shimmer 1.6s infinite;
+}
+.dark .skeleton::after {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.07),
+    transparent
+  );
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}

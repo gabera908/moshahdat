@@ -1,0 +1,1364 @@
+بالتأكيد. بما أنك تريد إعطاء الخطة مباشرة إلى **محرر أكواد يعمل بالذكاء الاصطناعي**، فالأفضل أن تكون الخطة على شكل **مواصفات تنفيذية واضحة** وليست مجرد أفكار.
+
+أقترح أن يكون الـMVP الأول مبنيًا على **Web Platform + Desktop Admin**، مع Docker، بحيث يمكن تطويره لاحقًا إلى منصة فيديو متكاملة.
+
+# خطة تنفيذ MVP احترافي لمنصة إدارة وعرض الفيديوهات
+
+## 1. الهدف من المشروع
+
+إنشاء منصة ويب احترافية لعرض وإدارة الفيديوهات، تشبه في تجربة الاستخدام منصات الفيديو الحديثة مثل YouTube، ولكنها مخصصة لإدارة محتوى فيديو خاص.
+
+الفيديوهات لا يتم رفعها إلى السيرفر في النسخة الأولى، وإنما يتم إدخال روابط الفيديو من مصادر خارجية مثل:
+
+* YouTube
+* Google Drive
+* Vimeo
+* Dropbox
+* Direct Video URL مثل MP4
+* Embed URL
+* أي مصدر يمكن تشغيله داخل iframe أو مشغل HTML5
+
+ويتم التحكم في المحتوى من خلال تطبيق Desktop احترافي يعمل على Windows.
+
+المشروع يجب أن يكون قابلًا للتوسع مستقبلًا إلى منصة فيديو متكاملة.
+
+---
+
+# 2. مكونات المشروع
+
+يجب إنشاء المشروع من 3 أجزاء رئيسية:
+
+## A. Web Frontend
+
+موقع عام يستطيع المستخدم من خلاله:
+
+* تصفح الفيديوهات.
+* البحث عن الفيديوهات.
+* مشاهدة الفيديو.
+* تصفح التصنيفات.
+* تصفح قوائم التشغيل.
+* مشاهدة أحدث الفيديوهات.
+* مشاهدة الأكثر مشاهدة.
+* مشاركة الفيديو.
+* استخدام الموقع من الهاتف والكمبيوتر.
+
+## B. Backend API
+
+مسؤول عن:
+
+* إدارة المستخدمين.
+* المصادقة Authentication.
+* إدارة الفيديوهات.
+* إدارة التصنيفات.
+* إدارة Tags.
+* إدارة Playlists.
+* إدارة المشاهدات.
+* إدارة الإحصائيات.
+* إدارة مصادر الفيديو.
+* توفير REST API للـFrontend وتطبيق Desktop.
+
+## C. Desktop Admin Application
+
+تطبيق Windows احترافي يستخدمه المدير لإدارة المنصة.
+
+يجب ألا يحتاج المدير إلى الدخول إلى الموقع لإدارة الفيديوهات.
+
+التطبيق يكون واجهته عربية RTL مع دعم الإنجليزية مستقبلًا.
+
+---
+
+# 3. Technology Stack
+
+## Frontend
+
+استخدم:
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* React Query أو TanStack Query
+* React Hook Form
+* Zod
+* Lucide Icons
+
+يجب أن يكون التصميم Responsive بالكامل.
+
+## Backend
+
+استخدم:
+
+* Python
+* FastAPI
+* Pydantic
+* SQLAlchemy
+* Alembic
+* JWT Authentication
+
+## Database
+
+استخدم:
+
+* PostgreSQL
+
+ولا تستخدم SQLite في النسخة النهائية.
+
+يمكن استخدام SQLite فقط أثناء Unit Testing إذا كان ذلك مفيدًا.
+
+## Desktop
+
+استخدم:
+
+* Python
+* PySide6
+* Qt Designer عند الحاجة
+* QSS أو نظام Styling احترافي
+
+يجب أن يكون التطبيق مستقلًا وقابلًا للتجميع إلى EXE.
+
+## Deployment
+
+استخدم:
+
+* Docker
+* Docker Compose
+* Nginx أو Traefik عند الحاجة
+
+---
+
+# 4. بنية المشروع
+
+استخدم Monorepo:
+
+```text
+video-platform/
+│
+├── frontend/
+│
+├── backend/
+│
+├── desktop-admin/
+│
+├── database/
+│
+├── docker/
+│
+├── docs/
+│
+├── scripts/
+│
+├── .env.example
+├── docker-compose.yml
+├── README.md
+└── LICENSE
+```
+
+يجب فصل كل جزء عن الآخر مع الحفاظ على API Contract واضح.
+
+---
+
+# 5. قاعدة البيانات
+
+إنشاء PostgreSQL Database.
+
+الجداول الأساسية:
+
+## users
+
+الحقول:
+
+* id
+* username
+* email
+* password_hash
+* full_name
+* role
+* is_active
+* created_at
+* updated_at
+* last_login
+
+الأدوار:
+
+* admin
+* editor
+* moderator
+
+---
+
+## videos
+
+الحقول:
+
+* id
+* title
+* slug
+* description
+* source_type
+* source_url
+* embed_url
+* thumbnail_url
+* duration
+* category_id
+* status
+* views_count
+* published_at
+* created_by
+* created_at
+* updated_at
+
+الحالات:
+
+* draft
+* pending
+* published
+* archived
+
+---
+
+## categories
+
+الحقول:
+
+* id
+* name
+* slug
+* description
+* image_url
+* sort_order
+* is_active
+* created_at
+
+---
+
+## tags
+
+الحقول:
+
+* id
+* name
+* slug
+
+---
+
+## video_tags
+
+ربط Many-to-Many بين الفيديوهات وTags.
+
+---
+
+## playlists
+
+الحقول:
+
+* id
+* title
+* slug
+* description
+* thumbnail_url
+* is_public
+* created_at
+* updated_at
+
+---
+
+## playlist_videos
+
+الحقول:
+
+* id
+* playlist_id
+* video_id
+* sort_order
+
+---
+
+## video_views
+
+الحقول:
+
+* id
+* video_id
+* session_id
+* ip_hash
+* user_agent
+* viewed_at
+
+لا يتم تخزين IP الخام بشكل غير ضروري.
+
+---
+
+## audit_logs
+
+الحقول:
+
+* id
+* user_id
+* action
+* entity_type
+* entity_id
+* details
+* created_at
+
+لتسجيل العمليات الإدارية.
+
+---
+
+# 6. نظام مصادر الفيديو
+
+يجب تصميم النظام بحيث لا يكون مرتبطًا بمصدر واحد.
+
+أنشئ abstraction باسم:
+
+```text
+VideoProvider
+```
+
+ويتم إنشاء Providers مثل:
+
+```text
+YouTubeProvider
+GoogleDriveProvider
+VimeoProvider
+DropboxProvider
+DirectURLProvider
+EmbedProvider
+```
+
+كل Provider مسؤول عن:
+
+* اكتشاف نوع الرابط.
+* استخراج Video ID إذا كان متاحًا.
+* إنشاء Embed URL.
+* الحصول على Thumbnail إذا كان المصدر يسمح.
+* التحقق من صلاحية الرابط.
+* تحديد طريقة التشغيل المناسبة.
+
+---
+
+# 7. إضافة فيديو
+
+يجب أن تحتوي لوحة الإدارة على شاشة:
+
+## إضافة فيديو جديد
+
+الحقول:
+
+### مصدر الفيديو
+
+Dropdown:
+
+* YouTube
+* Google Drive
+* Vimeo
+* Dropbox
+* Direct URL
+* Embed URL
+
+### الرابط
+
+حقل:
+
+```text
+Video URL
+```
+
+زر:
+
+```text
+فحص الرابط
+```
+
+عند الضغط:
+
+1. التحقق من صحة الرابط.
+2. اكتشاف المصدر.
+3. استخراج البيانات المتاحة.
+4. إنشاء Embed URL.
+5. جلب Thumbnail إذا أمكن.
+6. عرض Preview للفيديو.
+
+بعد ذلك يستطيع المدير تعديل:
+
+* العنوان.
+* الوصف.
+* الصورة.
+* التصنيف.
+* Tags.
+* Playlist.
+* الحالة.
+
+ثم:
+
+```text
+حفظ كمسودة
+```
+
+أو:
+
+```text
+نشر الفيديو
+```
+
+---
+
+# 8. التعامل مع الروابط غير القابلة للتضمين
+
+إذا كان الرابط لا يسمح بالـEmbedding:
+
+لا تعتبر العملية ناجحة.
+
+اعرض رسالة واضحة:
+
+```text
+هذا المصدر لا يسمح بتشغيل الفيديو داخل الموقع.
+
+يمكنك استخدام:
+- رابط Embed
+- رابط مباشر للفيديو
+- مصدر يدعم التشغيل داخل الموقع
+```
+
+مع توفير زر:
+
+```text
+فتح الرابط الأصلي
+```
+
+---
+
+# 9. الموقع العام
+
+## الصفحة الرئيسية
+
+تحتوي على:
+
+* Header
+* Logo
+* Search
+* Navigation
+* Hero Section اختياري
+* أحدث الفيديوهات
+* الأكثر مشاهدة
+* التصنيفات
+* Playlists
+* فيديوهات مميزة
+* Footer
+
+---
+
+# 10. تصميم Video Card
+
+كل فيديو يظهر داخل Card احترافية تحتوي على:
+
+* Thumbnail
+* Duration
+* Title
+* Category
+* Views
+* Date
+* مصدر الفيديو عند الحاجة
+
+مع Hover Effect.
+
+---
+
+# 11. صفحة مشاهدة الفيديو
+
+يجب إنشاء:
+
+```text
+/video/[slug]
+```
+
+وتحتوي على:
+
+* Video Player
+* عنوان الفيديو
+* تاريخ النشر
+* عدد المشاهدات
+* الوصف
+* Tags
+* Share
+* Copy Link
+* Playlist
+* Related Videos
+
+يجب أن تكون صفحة المشاهدة Responsive.
+
+---
+
+# 12. Video Player
+
+إنشاء مكون موحد:
+
+```text
+VideoPlayer
+```
+
+ويقرر طريقة التشغيل بناءً على:
+
+```text
+source_type
+```
+
+مثلاً:
+
+YouTube:
+
+```text
+YouTube Embed
+```
+
+Direct MP4:
+
+```text
+HTML5 Video
+```
+
+Vimeo:
+
+```text
+Vimeo Embed
+```
+
+Google Drive:
+
+```text
+Google Drive Preview/Embed
+```
+
+Custom:
+
+```text
+iframe
+```
+
+لا تقم بتنزيل الفيديوهات الخارجية إلى السيرفر.
+
+---
+
+# 13. البحث
+
+إنشاء Search System.
+
+البحث في:
+
+* title
+* description
+* category
+* tags
+
+مع:
+
+* autocomplete
+* pagination
+* filters
+* sorting
+
+الفلاتر:
+
+* التصنيف
+* التاريخ
+* الأكثر مشاهدة
+* الأحدث
+
+---
+
+# 14. التصنيفات
+
+إنشاء صفحة:
+
+```text
+/categories
+```
+
+وصفحة:
+
+```text
+/categories/[slug]
+```
+
+كل تصنيف يعرض الفيديوهات الخاصة به.
+
+---
+
+# 15. Playlists
+
+إنشاء:
+
+```text
+/playlists
+```
+
+و:
+
+```text
+/playlists/[slug]
+```
+
+مثال:
+
+```text
+إيكو ميديا 2026
+
+1. افتتاح المعسكر
+2. صناعة الأفلام الوثائقية
+3. البرلمان
+4. الصحة الواحدة
+5. التغيرات المناخية
+```
+
+ويستطيع المدير تغيير ترتيب الفيديوهات Drag & Drop.
+
+---
+
+# 16. Dashboard
+
+لوحة التحكم في تطبيق Desktop يجب أن تكون احترافية.
+
+الشاشة الرئيسية:
+
+```text
+Dashboard
+
+إجمالي الفيديوهات
+إجمالي المشاهدات
+الفيديوهات المنشورة
+المسودات
+التصنيفات
+Playlists
+```
+
+مع Charts:
+
+* المشاهدات اليومية.
+* المشاهدات الشهرية.
+* أكثر الفيديوهات مشاهدة.
+* توزيع الفيديوهات حسب المصدر.
+* توزيع الفيديوهات حسب التصنيف.
+
+---
+
+# 17. إدارة الفيديوهات
+
+شاشة:
+
+```text
+Videos
+```
+
+تحتوي على Table:
+
+| Thumbnail | Title | Source | Category | Views | Status | Actions |
+| --------- | ----- | ------ | -------- | ----: | ------ | ------- |
+
+الإجراءات:
+
+* View
+* Edit
+* Duplicate
+* Archive
+* Delete
+* Publish
+* Unpublish
+
+مع Bulk Actions.
+
+---
+
+# 18. إدارة التصنيفات
+
+يستطيع المدير:
+
+* إضافة تصنيف.
+* تعديل تصنيف.
+* حذف تصنيف.
+* ترتيب التصنيفات.
+* تفعيل/تعطيل التصنيف.
+
+---
+
+# 19. إدارة Playlists
+
+يستطيع المدير:
+
+* إنشاء Playlist.
+* تعديلها.
+* إضافة فيديوهات.
+* حذف فيديوهات.
+* إعادة ترتيب الفيديوهات بالسحب والإفلات.
+* جعل Playlist عامة أو خاصة.
+
+---
+
+# 20. إدارة المستخدمين
+
+Admin يستطيع:
+
+* إضافة مستخدم.
+* حذف مستخدم.
+* تعطيل مستخدم.
+* تغيير Role.
+* إعادة تعيين كلمة المرور.
+
+---
+
+# 21. Authentication
+
+استخدم JWT.
+
+يجب أن يكون هناك:
+
+```text
+Login
+Logout
+Refresh Token
+Password Hashing
+Role Based Access Control
+```
+
+لا تخزن كلمات المرور كنص عادي.
+
+استخدم:
+
+```text
+Argon2
+```
+
+أو bcrypt.
+
+---
+
+# 22. API
+
+إنشاء REST API منظمة:
+
+```text
+/api/v1/auth
+/api/v1/videos
+/api/v1/categories
+/api/v1/tags
+/api/v1/playlists
+/api/v1/users
+/api/v1/analytics
+/api/v1/providers
+```
+
+استخدم Swagger/OpenAPI من FastAPI.
+
+---
+
+# 23. API للفيديوهات
+
+أمثلة:
+
+```text
+GET    /api/v1/videos
+GET    /api/v1/videos/{id}
+POST   /api/v1/videos
+PUT    /api/v1/videos/{id}
+DELETE /api/v1/videos/{id}
+
+POST   /api/v1/videos/check-url
+POST   /api/v1/videos/{id}/publish
+POST   /api/v1/videos/{id}/archive
+```
+
+---
+
+# 24. Security
+
+يجب تنفيذ:
+
+* JWT.
+* Password hashing.
+* CORS مضبوط.
+* Rate limiting للـAPI الحساسة.
+* Input validation.
+* SQL Injection protection.
+* XSS protection.
+* CSRF protection عند الحاجة.
+* Secure HTTP Headers.
+* Secrets من Environment Variables.
+* عدم تخزين كلمات المرور أو API Keys داخل الكود.
+
+---
+
+# 25. SEO
+
+الموقع العام يجب أن يكون SEO Friendly.
+
+لكل فيديو:
+
+* Title
+* Description
+* Canonical URL
+* Open Graph
+* Twitter/X Card
+* Structured Data VideoObject عند توفر البيانات
+* Sitemap
+* Robots.txt
+
+كل فيديو يجب أن يمتلك:
+
+```text
+SEO-friendly slug
+```
+
+مثال:
+
+```text
+/ video / eco-media-summer-camp-2026
+```
+
+---
+
+# 26. اللغة
+
+النسخة الأولى:
+
+```text
+Arabic RTL
+```
+
+لكن يجب بناء النظام بطريقة تسمح بإضافة:
+
+```text
+English LTR
+```
+
+مستقبلًا.
+
+يجب عدم كتابة النصوص مباشرة داخل Components.
+
+استخدم نظام ترجمة.
+
+---
+
+# 27. التصميم
+
+التصميم يجب أن يكون Modern Professional.
+
+استخدم:
+
+* Dark Mode
+* Light Mode
+* Glass/Modern Cards بشكل معتدل
+* Rounded Corners
+* Subtle Shadows
+* Smooth Animations
+* Skeleton Loading
+* Toast Notifications
+* Modal Dialogs
+* Dropdowns
+* Tooltips
+
+لا تستخدم تصميمًا مزدحمًا.
+
+---
+
+# 28. الهوية البصرية
+
+استخدم ألوان قابلة للتغيير من Configuration.
+
+الافتراضي:
+
+```text
+Primary: #B87333
+Secondary: #2C3E50
+Background Dark: #0F1115
+Card Dark: #181B21
+Text: #FFFFFF
+Muted: #9CA3AF
+```
+
+استخدم خط عربي حديث مثل:
+
+```text
+Cairo
+```
+
+أو:
+
+```text
+Tajawal
+```
+
+---
+
+# 29. Desktop Application UI
+
+التطبيق يجب أن يبدو كتطبيق احترافي حقيقي وليس برنامج CRUD بسيط.
+
+التخطيط:
+
+```text
+Sidebar
++
+Topbar
++
+Content Area
+```
+
+القائمة:
+
+```text
+الرئيسية
+الفيديوهات
+إضافة فيديو
+التصنيفات
+Tags
+قوائم التشغيل
+الإحصائيات
+المستخدمون
+سجل العمليات
+الإعدادات
+تسجيل الخروج
+```
+
+---
+
+# 30. Desktop Application Features
+
+يجب دعم:
+
+* Search.
+* Filters.
+* Pagination.
+* Sorting.
+* Bulk Selection.
+* Drag & Drop.
+* Image Preview.
+* Video Preview.
+* Notifications.
+* Confirmation Dialogs.
+* Keyboard Shortcuts.
+* Loading Indicators.
+* Error Handling.
+
+---
+
+# 31. Offline Handling
+
+إذا انقطع الإنترنت:
+
+اعرض:
+
+```text
+لا يوجد اتصال بالخادم.
+يرجى التحقق من اتصال الإنترنت.
+```
+
+ولا يتسبب ذلك في Crash للتطبيق.
+
+---
+
+# 32. Logging
+
+Backend:
+
+استخدم Logging احترافي.
+
+Desktop:
+
+أنشئ Log File.
+
+يجب ألا تظهر أخطاء تقنية للمستخدم النهائي.
+
+مثلاً بدلاً من:
+
+```text
+ConnectionError: ...
+```
+
+اعرض:
+
+```text
+تعذر الاتصال بالخادم.
+حاول مرة أخرى.
+```
+
+وسجل التفاصيل في Log.
+
+---
+
+# 33. Docker
+
+إنشاء:
+
+```text
+docker-compose.yml
+```
+
+يحتوي على الأقل على:
+
+```text
+frontend
+backend
+postgres
+nginx
+```
+
+ويجب أن يعمل المشروع بأمر:
+
+```bash
+docker compose up -d
+```
+
+---
+
+# 34. Environment Variables
+
+إنشاء:
+
+```text
+.env.example
+```
+
+مثال:
+
+```text
+DATABASE_URL=
+JWT_SECRET=
+CORS_ORIGINS=
+NEXT_PUBLIC_API_URL=
+```
+
+لا تضع أي Secrets داخل Git.
+
+---
+
+# 35. Backup
+
+إنشاء Script لعمل Backup لقاعدة PostgreSQL.
+
+مثلاً:
+
+```text
+scripts/backup.sh
+scripts/backup.ps1
+```
+
+مع إمكانية استعادة النسخة الاحتياطية.
+
+---
+
+# 36. Testing
+
+يجب ألا يكون المشروع بدون Tests.
+
+Backend:
+
+* Unit Tests
+* API Tests
+* Authentication Tests
+* Video Provider Tests
+
+Frontend:
+
+* Component Tests
+* Basic E2E Tests
+
+Desktop:
+
+* اختبار تسجيل الدخول.
+* اختبار إضافة فيديو.
+* اختبار تعديل فيديو.
+* اختبار الاتصال بالـAPI.
+
+---
+
+# 37. Error Handling
+
+كل API يجب أن تستخدم Response Format موحد.
+
+مثلاً:
+
+```json
+{
+  "success": false,
+  "message": "تعذر إضافة الفيديو",
+  "error_code": "VIDEO_URL_INVALID"
+}
+```
+
+---
+
+# 38. Performance
+
+يجب تنفيذ:
+
+* Pagination.
+* Lazy Loading.
+* Image Optimization.
+* Thumbnail Optimization.
+* API Caching عند الحاجة.
+* Database Indexes.
+* عدم تحميل جميع الفيديوهات مرة واحدة.
+
+---
+
+# 39. منع حذف البيانات بالخطأ
+
+أي عملية Delete يجب أن تظهر Confirmation Dialog:
+
+```text
+هل أنت متأكد من حذف هذا الفيديو؟
+
+هذا الإجراء لا يمكن التراجع عنه.
+
+[إلغاء]
+[حذف]
+```
+
+ويفضل استخدام Soft Delete للبيانات المهمة.
+
+---
+
+# 40. MVP لا يشمل
+
+لا تنفذ في الإصدار الأول:
+
+* رفع الفيديوهات إلى السيرفر.
+* Transcoding.
+* Live Streaming.
+* نظام اشتراكات مدفوع.
+* إعلانات.
+* Comments.
+* نظام Recommendation معقد بالذكاء الاصطناعي.
+* تطبيق Android/iOS.
+* CDN خاص.
+
+هذه تكون في الإصدارات القادمة.
+
+---
+
+# 41. مراحل التنفيذ
+
+## المرحلة الأولى — Project Setup
+
+* إنشاء Repository.
+* إنشاء Monorepo.
+* إعداد Docker.
+* إعداد PostgreSQL.
+* إعداد FastAPI.
+* إعداد Next.js.
+* إعداد PySide6.
+* إعداد Environment Variables.
+
+---
+
+## المرحلة الثانية — Backend
+
+تنفيذ:
+
+1. Database Models.
+2. Alembic Migrations.
+3. Authentication.
+4. Users.
+5. Videos.
+6. Categories.
+7. Tags.
+8. Playlists.
+9. Analytics.
+10. Audit Logs.
+11. Video Providers.
+
+---
+
+## المرحلة الثالثة — Web Frontend
+
+تنفيذ:
+
+1. Layout.
+2. Header.
+3. Footer.
+4. Homepage.
+5. Video Cards.
+6. Video Details.
+7. Search.
+8. Categories.
+9. Playlists.
+10. Responsive Design.
+11. SEO.
+12. Dark/Light Mode.
+
+---
+
+## المرحلة الرابعة — Desktop
+
+تنفيذ:
+
+1. Login.
+2. Dashboard.
+3. Videos.
+4. Add Video.
+5. Edit Video.
+6. Categories.
+7. Tags.
+8. Playlists.
+9. Analytics.
+10. Users.
+11. Settings.
+12. Logs.
+
+---
+
+## المرحلة الخامسة — Integration
+
+اختبار:
+
+```text
+Desktop
+   ↓
+FastAPI
+   ↓
+PostgreSQL
+   ↓
+Web Frontend
+```
+
+يجب أن يكون كل شيء متصلًا فعليًا.
+
+---
+
+# 42. معايير قبول MVP
+
+لا تعتبر المشروع مكتملًا إلا إذا تحقق التالي:
+
+### الفيديو
+
+* يمكن إضافة فيديو من YouTube.
+* يمكن إضافة فيديو من Google Drive إذا كان الرابط قابلًا للتضمين.
+* يمكن إضافة Direct MP4.
+* يمكن تعديل الفيديو.
+* يمكن حذف/أرشفة الفيديو.
+* يمكن نشر وإخفاء الفيديو.
+* يظهر الفيديو على الموقع.
+
+### الموقع
+
+* الصفحة الرئيسية تعمل.
+* البحث يعمل.
+* التصنيفات تعمل.
+* Playlists تعمل.
+* صفحة الفيديو تعمل.
+* عداد المشاهدات يعمل.
+* Responsive على الهاتف.
+* RTL يعمل بشكل صحيح.
+
+### Desktop
+
+* Login يعمل.
+* Dashboard يعمل.
+* CRUD للفيديوهات يعمل.
+* إدارة التصنيفات تعمل.
+* إدارة Playlists تعمل.
+* الإحصائيات تعمل.
+* التعامل مع أخطاء الاتصال يعمل.
+
+### Infrastructure
+
+* Docker يعمل.
+* PostgreSQL يعمل.
+* Backup يعمل.
+* Environment Variables تعمل.
+* README يحتوي على خطوات التشغيل.
+
+---
+
+# 43. قواعد مهمة للمبرمج الذكي
+
+أثناء تنفيذ المشروع:
+
+1. لا تكتب Prototype وهمي.
+2. لا تستخدم بيانات Mock بدل قاعدة البيانات في النسخة النهائية.
+3. لا تضع بيانات ثابتة داخل الواجهة.
+4. كل البيانات يجب أن تأتي من API.
+5. كل CRUD يجب أن يكون حقيقيًا.
+6. لا تكرر الكود.
+7. استخدم Components قابلة لإعادة الاستخدام.
+8. استخدم TypeScript بشكل صحيح.
+9. استخدم Type Hints في Python.
+10. اكتب Docstrings للأجزاء المهمة.
+11. لا تضع Secrets داخل Git.
+12. لا تكسر الوظائف الموجودة عند إضافة وظيفة جديدة.
+13. بعد كل مرحلة شغل Tests.
+14. أصلح الأخطاء قبل الانتقال للمرحلة التالية.
+15. لا تعتبر المهمة مكتملة بمجرد إنشاء الملفات؛ يجب اختبار التطبيق فعليًا.
+
+---
+
+# 44. أسلوب العمل المطلوب من AI Code Editor
+
+لا تحاول بناء المشروع كله في عملية واحدة.
+
+نفذ المشروع على مراحل.
+
+بعد كل مرحلة:
+
+1. افحص الملفات.
+2. شغل المشروع.
+3. شغل Tests.
+4. أصلح الأخطاء.
+5. تحقق من التكامل.
+6. ثم انتقل للمرحلة التالية.
+
+عند وجود قرار تقني غير واضح، اختر الحل الأكثر:
+
+* قابلية للتوسع.
+* أمانًا.
+* بساطة.
+* سهولة الصيانة.
+* توافقًا مع Docker.
+* توافقًا مع PostgreSQL.
+
+ولا تقم بتغيير Technology Stack بدون سبب تقني واضح.
+
+---
+
+# 45. النتيجة النهائية المطلوبة
+
+أريد مشروعًا جاهزًا للتشغيل يحتوي على:
+
+```text
+Professional Video Platform
+        +
+Professional Desktop Admin
+        +
+FastAPI Backend
+        +
+PostgreSQL
+        +
+Docker
+        +
+REST API
+        +
+Arabic RTL
+        +
+YouTube / Drive / Vimeo / Direct URL
+        +
+Playlists
+        +
+Categories
+        +
+Search
+        +
+Analytics
+        +
+Authentication
+        +
+Role Based Access
+        +
+SEO
+        +
+Backup
+        +
+Testing
+```
+
+الهدف ليس إنشاء موقع تجريبي، وإنما إنشاء **MVP احترافي قابل للاستخدام الفعلي وقابل للتوسع إلى منصة فيديو كاملة في المستقبل**.
+
+ابدأ أولًا بإنشاء Architecture وملفات المشروع الأساسية، ثم نفذ المرحلة الأولى فقط. بعد التأكد من نجاحها انتقل إلى المرحلة الثانية، ولا تنتقل إلى المرحلة التالية إذا كانت المرحلة الحالية تحتوي على أخطاء حرجة.
