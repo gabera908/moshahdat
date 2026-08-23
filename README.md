@@ -51,9 +51,9 @@ docker compose exec backend python -m scripts.seed --demo     # محتوى تج�
 
 | الخدمة | العنوان |
 |---|---|
-| الموقع | http://localhost |
-| API | http://localhost/api/v1 |
-| Swagger | http://localhost/docs |
+| الموقع | http://localhost:6666 |
+| API | http://localhost:6666/api/v1 |
+| Swagger | http://localhost:6666/docs |
 
 ## التشغيل بدون Docker (تطوير)
 
