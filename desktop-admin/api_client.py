@@ -65,13 +65,17 @@ class ApiClient:
         _retry_auth: bool = True,
     ) -> Any:
         url = f"{self.base_url()}{path}"
+        headers = self._headers(auth)
+        if data is not None:
+            # Form payload (login): let httpx set application/x-www-form-urlencoded
+            headers.pop("Content-Type", None)
         try:
             resp = httpx.request(
                 method,
                 url,
                 json=json_body if data is None else None,
                 data=data,
-                headers=self._headers(auth),
+                headers=headers,
                 timeout=15.0,
             )
         except (httpx.ConnectError, httpx.TimeoutException):
