@@ -42,3 +42,6 @@ backups/
 desktop-admin/build/
 desktop-admin/dist/
 *.spec.bak
+
+# server ops helpers (never commit credentials)
+scripts/ssh_run.py
