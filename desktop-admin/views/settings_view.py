@@ -54,7 +54,7 @@ class SettingsView(QWidget):
 
         hint = QLabel(
             "ملاحظة: يجب أن يكون عنوان الخادم متاحًا من هذا الجهاز.\n"
-            "مثال محلي: http://localhost:8080/api/v1 — مثال خادم: https://example.com/api/v1"
+            "مثال محلي: http://localhost:6688/api/v1 — مثال خادم: https://example.com/api/v1"
         )
         hint.setObjectName("HintText")
         hint.setWordWrap(True)

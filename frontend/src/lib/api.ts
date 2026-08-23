@@ -8,9 +8,9 @@ import type {
 } from "./types";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:6688/api/v1";
 export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "منصة الفيديو";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:8080";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:6688";
 
 export class ApiError extends Error {
   constructor(

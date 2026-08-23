@@ -11,7 +11,7 @@ LOG_DIR = APP_DIR / "logs"
 
 @dataclass
 class AppConfig:
-    api_base_url: str = "http://localhost:8080/api/v1"
+    api_base_url: str = "http://localhost:6688/api/v1"
     language: str = "ar"
     theme: str = "dark"
     page_size: int = 25
