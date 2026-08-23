@@ -2,11 +2,31 @@
 
 import { useEffect } from "react";
 
+/**
+ * crypto.randomUUID() is secure-context-only — unavailable on plain HTTP
+ * (e.g. http://192.168.x.x). Build an id from getRandomValues instead.
+ */
+function randomId(): string {
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch {
+    /* fall through */
+  }
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+
 function getSessionId(): string {
   const KEY = "vp_session_id";
   let id = sessionStorage.getItem(KEY);
   if (!id) {
-    id = crypto.randomUUID().replace(/-/g, "");
+    id = randomId();
     sessionStorage.setItem(KEY, id);
   }
   return id;
