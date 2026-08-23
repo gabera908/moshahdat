@@ -18,7 +18,9 @@ interface Props {
 export const revalidate = 30;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // App Router passes dynamic params URL-encoded — decode before use.
+  const slug = decodeURIComponent(rawSlug);
   try {
     const video = await getVideoBySlug(slug);
     const url = `${SITE_URL}/video/${slug}`;
@@ -46,7 +48,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function WatchPage({ params }: Props) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // App Router passes dynamic params URL-encoded — decode before use.
+  const slug = decodeURIComponent(rawSlug);
 
   let video;
   try {

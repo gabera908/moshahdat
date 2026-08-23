@@ -17,7 +17,9 @@ async function findCategory(slug: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // App Router passes dynamic params URL-encoded — decode before use.
+  const slug = decodeURIComponent(rawSlug);
   const cat = await findCategory(slug);
   if (!cat) return { title: "التصنيف غير موجود" };
   return {

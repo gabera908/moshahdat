@@ -11,7 +11,9 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // App Router passes dynamic params URL-encoded — decode before use.
+  const slug = decodeURIComponent(rawSlug);
   const playlist = await getPlaylistBySlug(slug).catch(() => null);
   if (!playlist) return { title: "قائمة التشغيل غير موجودة" };
   return {
@@ -22,7 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function PlaylistPage({ params }: Props) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // App Router passes dynamic params URL-encoded — decode before use.
+  const slug = decodeURIComponent(rawSlug);
   const playlist = await getPlaylistBySlug(slug).catch(() => null);
 
   if (!playlist) {
