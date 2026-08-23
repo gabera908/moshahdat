@@ -44,10 +44,13 @@ services:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost/api/v1}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:6688/api/v1}
         NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-منصة الفيديو}
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:6688}
     restart: unless-stopped
+    environment:
+      # Server-side fetches go through the docker network (public URL is for browsers)
+      API_INTERNAL_URL: http://nginx/api/v1
     depends_on:
       backend:
         condition: service_healthy

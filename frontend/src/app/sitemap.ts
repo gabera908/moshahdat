@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { API_BASE, SITE_URL } from "@/lib/api";
+import { API_BASE_SERVER, SITE_URL } from "@/lib/api";
 
 interface SlugItem {
   slug: string;
@@ -9,7 +9,7 @@ interface SlugItem {
 
 async function fetchSlugs(path: string): Promise<SlugItem[]> {
   try {
-    const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE_SERVER}${path}`, { cache: "no-store" });
     if (!res.ok) return [];
     const body = await res.json();
     return body?.data?.items ?? body?.data ?? [];

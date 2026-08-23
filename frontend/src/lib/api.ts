@@ -12,6 +12,16 @@ export const API_BASE =
 export const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "منصة الفيديو";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:6688";
 
+/**
+ * Server-side fetches (SSR/metadata/sitemap) run inside the container where
+ * the public LAN URL may be unreachable — prefer the internal docker URL.
+ * Client components always use the public NEXT_PUBLIC_API_URL.
+ */
+const API_BASE_SERVER =
+  process.env.API_INTERNAL_URL || API_BASE;
+
+export { API_BASE_SERVER };
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -32,7 +42,7 @@ interface Envelope<T> {
 async function request<T>(path: string): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
+    res = await fetch(`${API_BASE_SERVER}${path}`, { cache: "no-store" });
   } catch {
     throw new ApiError("تعذر الاتصال بالخادم", 0, "NETWORK_ERROR");
   }
