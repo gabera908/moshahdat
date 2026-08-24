@@ -218,7 +218,7 @@ class PlaylistsView(QWidget):
         start_worker(
             self.client, "get",
             on_done=self._pick_video, on_fail=self._fail,
-            args=("/videos/admin/all?page_size=200&sort=newest",), kwargs={"auth": True},
+            args=("/videos/admin/all?page_size=100&sort=newest",), kwargs={"auth": True},
         )
 
     def _pick_video(self, data) -> None:
