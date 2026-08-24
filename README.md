@@ -136,7 +136,7 @@ powershell -File scripts/backup.ps1
 | المصدر | Embed | صورة تلقائية | ملاحظات |
 |---|---|---|---|
 | YouTube | `/embed/{id}` | ✓ | watch / youtu.be / shorts |
-| Google Drive | `/file/d/{id}/preview` | ✗ | يتطلب مشاركة «أي شخص لديه الرابط» |
+| Google Drive | `/file/d/{id}/preview` + بث مباشر HTML5 عبر `drive.usercontent.google.com` | ✓ (تلقائية) | يتطلب «أي شخص لديه الرابط» — فحص تلقائي + سقوط لـ iframe عند الحاجة |
 | Vimeo | `player.vimeo.com/video/{id}` | ✗ | |
 | Dropbox | رابط مباشر `raw=1` | ✗ | يعمل كمشغل HTML5 للملفات المرئية |
 | Direct URL | HTML5 `<video>` | ✗ | mp4/webm/m3u8... |

@@ -213,8 +213,6 @@ class ApiWorker(QThread):
             result = fn(*self.args, **self.kwargs)
             self.signals.finished.emit(result)
         except (httpx.ConnectError, httpx.TimeoutException) as exc:
-            from utils.logging_setup import log
-
             log.warning("offline: %s", exc)
             self.signals.offline.emit()
             self.signals.failed.emit(

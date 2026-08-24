@@ -9,12 +9,14 @@ from PySide6.QtWidgets import (
     QDateEdit,
     QDialog,
     QFormLayout,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -42,12 +44,27 @@ class VideoEditorDialog(QDialog):
         self.checked_info: dict | None = None
 
         self.setWindowTitle("تعديل فيديو" if video else "إضافة فيديو جديد")
-        self.resize(640, 620)
         self._categories: list[dict] = []
+
+        # Fit any screen: cap height to the available work area.
+        from PySide6.QtWidgets import QApplication
+
+        screen = QApplication.primaryScreen()
+        avail_h = screen.availableGeometry().height() if screen else 800
+        self.resize(640, min(660, int(avail_h * 0.88)))
 
         root = QVBoxLayout(self)
         root.setContentsMargins(24, 20, 24, 18)
         root.setSpacing(12)
+
+        # Scrollable content — the dialog never overflows the screen.
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        content = QWidget()
+        content_lay = QVBoxLayout(content)
+        content_lay.setContentsMargins(0, 0, 0, 0)
+        content_lay.setSpacing(12)
 
         form = QFormLayout()
         form.setSpacing(10)
@@ -127,10 +144,13 @@ class VideoEditorDialog(QDialog):
         self.publish_date.setDate(QDate.currentDate())
         form.addRow("تاريخ النشر:", self.publish_date)
 
-        root.addLayout(form)
+        content_lay.addLayout(form)
 
         self.featured_check = QCheckBox("فيديو مميز (يظهر في الصفحة الرئيسية)")
-        root.addWidget(self.featured_check)
+        content_lay.addWidget(self.featured_check)
+
+        scroll.setWidget(content)
+        root.addWidget(scroll, 1)
 
         buttons = QHBoxLayout()
         cancel_btn = QPushButton("إلغاء")
