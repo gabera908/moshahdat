@@ -210,36 +210,68 @@ class PlaylistsView(QWidget):
         )
 
     def _add_video_dialog(self) -> None:
-        """Pick published videos and append to the current playlist."""
+        """Pick any video (published or draft) and append to the current playlist."""
         if not self.current_playlist:
             show_toast(self.window(), "اختر قائمة أولًا", "info")
             return
+        # Use admin listing so drafts appear too — public listing hides drafts.
         start_worker(
             self.client, "get",
             on_done=self._pick_video, on_fail=self._fail,
-            args=("/videos?page_size=200&sort=newest",), kwargs={"auth": True},
+            args=("/videos/admin/all?page_size=200&sort=newest",), kwargs={"auth": True},
         )
 
     def _pick_video(self, data) -> None:
-        from PySide6.QtWidgets import QDialog, QDialogButtonBox, QVBoxLayout
+        from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QLineEdit, QVBoxLayout
 
-        items = data.get("items", [])
+        # Admin and public endpoints wrap differently: normalize to a flat list.
+        raw = data.get("items", []) if isinstance(data, dict) else []
+        # Public returns items; admin returns items inside data — both handled.
+        if not raw and isinstance(data, dict) and "data" in data:
+            raw = data["data"].get("items", [])
         existing = set(self._ordered_ids())
-        candidates = [v for v in items if v["id"] not in existing]
+        candidates = [v for v in raw if v["id"] not in existing]
         if not candidates:
             show_toast(self.window(), "كل الفيديوهات موجودة في القائمة بالفعل", "info")
             return
 
         dialog = QDialog(self)
         dialog.setWindowTitle("اختر فيديو للإضافة")
-        dialog.resize(420, 380)
+        dialog.resize(500, 420)
         lay = QVBoxLayout(dialog)
+
+        hint = QLabel("ابحث داخل القائمة ثم اختر فيديو واضغط موافق (نقر مزدوج يضيف مباشرة)")
+        hint.setObjectName("HintText")
+        lay.addWidget(hint)
+
+        search = QLineEdit()
+        search.setPlaceholderText("🔍 فلترة حسب العنوان...")
+        lay.addWidget(search)
+
         picker = QListWidget()
+        picker.setAlternatingRowColors(True)
         for v in candidates:
-            item = QListWidgetItem(v["title"])
+            label = v["title"]
+            st = v.get("status", "")
+            if st and st != "published":
+                label += f"  — [{st}]"
+            ch = v.get("channel_name")
+            if ch:
+                label += f"  • {ch}"
+            item = QListWidgetItem(label)
             item.setData(Qt.UserRole, v["id"])
             picker.addItem(item)
-        lay.addWidget(picker)
+        lay.addWidget(picker, 1)
+
+        def _filter(text: str) -> None:
+            q = text.strip().lower()
+            for i in range(picker.count()):
+                it = picker.item(i)
+                it.setHidden(bool(q) and q not in it.text().lower())
+
+        search.textChanged.connect(_filter)
+        picker.itemDoubleClicked.connect(lambda _: dialog.accept())
+
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
@@ -247,7 +279,15 @@ class PlaylistsView(QWidget):
 
         if dialog.exec() != QDialog.Accepted or not picker.currentItem():
             return
-        chosen = picker.currentItem().data(Qt.UserRole)
+        # When filtered, currentItem may be hidden — find first visible selected.
+        chosen_item = picker.currentItem()
+        if chosen_item.isHidden():
+            for i in range(picker.count()):
+                it = picker.item(i)
+                if not it.isHidden() and it.isSelected():
+                    chosen_item = it
+                    break
+        chosen = chosen_item.data(Qt.UserRole)
 
         ids = self._ordered_ids() + [chosen]
         start_worker(
