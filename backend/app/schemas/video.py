@@ -18,6 +18,7 @@ class CheckUrlResponse(BaseModel):
     embed_url: str | None = None
     thumbnail_url: str | None = None
     playable_mode: str = "unknown"
+    suggested_title: str | None = None
     message: str = ""
 
 

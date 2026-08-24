@@ -1,4 +1,8 @@
-"""Google Drive provider (public shareable files only)."""
+"""Google Drive provider (public shareable files only).
+
+Pure URL analysis only — network verification lives in
+`app.providers._gdrive_fetch` so this stays testable.
+"""
 import re
 from typing import ClassVar
 
@@ -22,11 +26,8 @@ class GoogleDriveProvider(BaseProvider):
             valid=True,
             video_id=file_id,
             embed_url=f"https://drive.google.com/file/d/{file_id}/preview",
-            thumbnail_url=None,
+            thumbnail_url=None,  # filled after the accessibility check
             playable_mode="iframe",
-            message=(
-                "تم التعرف على ملف Google Drive. تأكد أن مشاركة الملف "
-                "\"أي شخص لديه الرابط\" وإلا لن يعمل التشغيل داخل الموقع."
-            ),
+            message="تم استخراج معرّف الملف. جارٍ فحص إمكانية الوصول...",
             extras={"canonical": f"https://drive.google.com/file/d/{file_id}/view"},
         )

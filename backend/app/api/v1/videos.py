@@ -99,6 +99,7 @@ def check_video_url(
         embed_url=result.embed_url,
         thumbnail_url=result.thumbnail_url,
         playable_mode=result.playable_mode,
+        suggested_title=result.extras.get("suggested_title"),
         message=result.message,
     )
     return ApiResponse(success=result.valid, message=result.message, data=data)

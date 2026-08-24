@@ -232,6 +232,9 @@ class VideoEditorDialog(QDialog):
             pass  # keep admin-entered title; providers don't fetch titles in MVP
         if thumb and not self.thumbnail_input.text().strip():
             self.thumbnail_input.setText(thumb)
+        suggested = info.get("suggested_title")
+        if suggested and not self.title_input.text().strip():
+            self.title_input.setText(suggested)
         self._set_preview(thumb, embed)
         self._show_check(f"✓ {message} [{mode}]")
 
