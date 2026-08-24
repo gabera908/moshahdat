@@ -1,5 +1,6 @@
 """Videos management: searchable, filterable table + bulk actions + CRUD."""
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -207,7 +208,7 @@ class VideosView(QWidget):
 
             status_item = QTableWidgetItem(STATUS_LABELS.get(v["status"], v["status"]))
             color = {"published": "#10B981", "draft": "#F59E0B", "archived": "#64748B", "pending": "#3B82F6"}.get(v["status"], "#9CA3AF")
-            status_item.setForeground(color)
+            status_item.setForeground(QColor(color))
             status_item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row, 5, status_item)
 
