@@ -15,6 +15,32 @@ from config import AppConfig
 from utils.logging_setup import log
 
 
+def load_fonts(app: QApplication) -> None:
+    """Bundle Tajawal so the UI looks identical on every machine.
+
+    Qt fails to load font files from paths containing non-ASCII characters
+    (e.g. an Arabic project folder), so we copy them to a temp ASCII-safe
+    directory first and register from there.
+    """
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    from PySide6.QtGui import QFontDatabase
+
+    fonts_dir = Path(__file__).parent / "fonts"
+    if not fonts_dir.exists():
+        return
+
+    target = Path(tempfile.gettempdir()) / "vpadmin_fonts"
+    target.mkdir(parents=True, exist_ok=True)
+    for ttf in fonts_dir.glob("*.ttf"):
+        dest = target / ttf.name
+        if not dest.exists() or dest.stat().st_size != ttf.stat().st_size:
+            shutil.copy2(ttf, dest)
+        QFontDatabase.addApplicationFont(str(dest))
+
+
 def load_theme(app: QApplication) -> None:
     from pathlib import Path
 
@@ -29,8 +55,10 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("VideoPlatformAdmin")
     app.setLayoutDirection(Qt.RightToLeft)
-    font = QFont("Segoe UI", 10)
-    font.setFamilies(["Cairo", "Tajawal", "Segoe UI"])
+
+    load_fonts(app)
+    font = QFont("Tajawal", 10)
+    font.setFamilies(["Tajawal", "Cairo", "Segoe UI"])
     app.setFont(font)
     load_theme(app)
 

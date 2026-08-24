@@ -4,6 +4,7 @@ from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
+    QScrollArea,
     QLabel,
     QMainWindow,
     QPushButton,
@@ -123,8 +124,15 @@ class MainWindow(QMainWindow):
             "settings": SettingsView(client, config),
         }
 
+        # Every page scrolls to its end (plan §30: reach bottom of page)
+        self.scrolls = {}
         for key, view in self.views.items():
-            self.stack.addWidget(view)
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            scroll.setFrameShape(QFrame.NoFrame)
+            scroll.setWidget(view)
+            self.scrolls[key] = scroll
+            self.stack.addWidget(scroll)
 
         content_lay.addWidget(topbar)
         content_lay.addWidget(self.stack)
@@ -168,8 +176,8 @@ class MainWindow(QMainWindow):
             title = "إضافة فيديو"
         self.page_title.setText(title)
 
+        self.stack.setCurrentWidget(self.scrolls[key])
         view = self.views[key]
-        self.stack.setCurrentWidget(view)
         if hasattr(view, "on_show"):
             view.on_show(then=then) if then else view.on_show()
 

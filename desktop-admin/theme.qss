@@ -244,3 +244,39 @@ QCheckBox::indicator:checked {
     background-color: #B87333;
     border-color: #B87333;
 }
+
+
+/* ---------- Scroll areas (every page scrolls to its end) ---------- */
+QScrollArea {
+    border: none;
+    background-color: #0F1115;
+}
+QScrollArea > QWidget > QWidget {
+    background-color: #0F1115;
+}
+
+/* ---------- Readable table/list text (was washed out) ---------- */
+QTableWidget {
+    color: #E5E7EB;
+}
+QTableWidget::item {
+    color: #E5E7EB;
+    background-color: transparent;
+    padding: 4px;
+}
+QTableWidget::item:selected {
+    color: #FFFFFF;
+    background-color: rgba(184,115,51,0.35);
+}
+QHeaderView::section {
+    color: #C9CED8;
+}
+QListWidget::item {
+    color: #E5E7EB;
+}
+QListWidget::item:selected {
+    color: #FFFFFF;
+}
+QLabel#MutedText, QLabel#HintText {
+    color: #A6ADBB;
+}

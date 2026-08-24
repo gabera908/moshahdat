@@ -1,5 +1,6 @@
 """Users management (admin only): CRUD + role + reset password."""
 from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -85,7 +86,7 @@ class UsersView(QWidget):
             self.table.setItem(row, 2, role_item)
             active = QTableWidgetItem("نعم" if u["is_active"] else "معطل")
             active.setTextAlignment(Qt.AlignCenter)
-            active.setForeground(Qt.green if u["is_active"] else Qt.red)
+            active.setForeground(QColor("#34D399" if u["is_active"] else "#F87171"))
             self.table.setItem(row, 3, active)
 
             actions = QWidget()
